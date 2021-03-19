@@ -37,9 +37,27 @@ function buildCharts(sample) {
 
         }];
 
-        
         Plotly.newPlot("bar", barChart);
 
+        // Bubble Chart
+        d3.json("samples.json").then((data) => {
+            var sampleData = data.samples;
+            var object = sampleData.filter(sampleObject => sampleObject.id == sample)[0];
+            
+            var bubbleData =  [{
+                x: object.otu_ids,
+                y: object.sample_values,
+                mode: "markers",
+                text: object.otu_labels,
+                marker: {
+                    size: object.sample_values,
+                    color: object.otu_ids
+                 }
+            }]; 
+        
+
+            Plotly.newPlot("bubble", bubbleData);
+        });
     
 
     });
