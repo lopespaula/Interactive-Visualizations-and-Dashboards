@@ -92,3 +92,20 @@ function optionChanged(newSample) {
 
 init();
 
+// Display the sample Metadata
+function buildMetadata(sample) {
+    d3.json("samples.json").then((data) => {
+        var sampleMeta = data.metadata;
+        
+        var results = sampleMeta.filter(sampleObj => sampleObj.id == sample)[0];
+
+        var panelData = d3.select("#sample-metadata");
+
+        panelData.html("");
+
+        Object.entries(results).forEach(([key, value]) => {
+            panelData.append("h6").text(`${key} : ${value}`);
+
+        });
+    });
+}
