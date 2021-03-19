@@ -3,63 +3,92 @@ d3.json("samples.json").then((data) => {
     console.log(data);
 });
 
-// Charts
+// Build Charts
 function buildCharts(sample) {
 
-    // Sample data
+    // Data Samples
     d3.json("samples.json").then((data) => {
-        var sampleData = data.samples;
-        console.log(sampleData)
+        var sampleInfo = data.samples;
+        console.log(sampleInfo)
 
         // Filter object by id
-        var object = sampleData.filter(sampleObject => sampleObject.id == sample)[0];
-        console.log(object)
+        var results = sampleInfo.filter(sampleObj => sampleObj.id == sample)[0];
+        console.log(results)
 
-        // Set variables
-        var sampleValues = object.sample_values.slice(0, 10).reverse();
+        // Set variables 
+        var sampleValues = results.sample_values.slice(0, 10).reverse();
         console.log(sampleValues);
 
-        var otuIds = object.otu_ids;
-        console.log(otuIds);
+        var otuIDs = results.otu_ids;
+        console.log(otuIDs);
 
-        var otuLabels = object.otu_labels.slice(0, 10).reverse();
+        var otuLabels = results.otu_labels.slice(0, 10).reverse();
         console.log(otuLabels);
 
-        var yaxis = otuIds.map(sampleObject => "OTU" + sampleObject).slice(0,10).reverse();
-
+        var yticks = otuIDs.map(sampleObj => "OTU " + sampleObj).slice(0,10).reverse();
+        
         // Bar chart
-        var barChart = [{
+        var barData = [{
             x: sampleValues,
-            y: yaxis,
+            y: yticks,
             text: otuLabels,
             type: "bar",
             orientation: "h"
 
         }];
 
-        Plotly.newPlot("bar", barChart);
+        //Plot
+        Plotly.newPlot("bar", barData);
 
         // Bubble Chart
         d3.json("samples.json").then((data) => {
-            var sampleData = data.samples;
-            var object = sampleData.filter(sampleObject => sampleObject.id == sample)[0];
+            var sampleInfo = data.samples;
+            var results = sampleInfo.filter(sampleObj => sampleObj.id == sample)[0];
             
             var bubbleData =  [{
-                x: object.otu_ids,
-                y: object.sample_values,
+                x: results.otu_ids,
+                y: results.sample_values,
                 mode: "markers",
-                text: object.otu_labels,
+                text: results.otu_labels,
                 marker: {
-                    size: object.sample_values,
-                    color: object.otu_ids
+                    size: results.sample_values,
+                    color: results.otu_ids
                  }
             }]; 
         
-
+            //Plot
             Plotly.newPlot("bubble", bubbleData);
         });
-    
+    });
+}
+
+
+// Drop down menu
+function init() {
+    var dropDown = d3.selectAll("#selDataset");
+
+    // Add sample names to a variable
+    d3.json("samples.json").then((data) => {
+        var sampleNames = data.names;
+
+        sampleNames.forEach((sample) => {
+            dropDown
+                .append("option")
+                .text(sample)
+                .property("value", sample);
+        });
+
+        var firstSample = sampleNames[0];
+        buildCharts(firstSample);
+        buildMetadata(firstSample);
 
     });
-}    
+}
+
+function optionChanged(newSample) {
+    buildCharts(newSample);
+    buildMetadata(newSample);
+}
+
+init();
 
